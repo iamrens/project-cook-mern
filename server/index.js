@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import authRoutes from './routes/auth.js'
 
 // CONFIGS
 dotenv.config()
@@ -16,7 +17,7 @@ app.get("/", (req, res) => {
 
 
 // ROUTES
-
+app.use("/auth", authRoutes);
 
 // MONGOOSE SETUP
 const PORT = process.env.PORT || 6000;
