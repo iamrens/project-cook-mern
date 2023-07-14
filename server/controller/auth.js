@@ -70,7 +70,7 @@ export const login = async (req, res) => {
       throw new Error("Wrong password");
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d'});
     delete user.password;
     res.status(200).json({ token, user });
   } catch (err) {
