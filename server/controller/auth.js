@@ -12,10 +12,10 @@ export const register = async (req, res) => {
 
     // Validation checks
     if (userExist) {
-      throw new Error("Email already exist.");
+      throw new Error("Username already exist.");
     }
     if (emailExist) {
-      throw new Error("Username already exist.");
+      throw new Error("Email already exist.");
     }
     if (!email || !password || !username) {
       throw new Error("Please provide the required fields");
@@ -29,15 +29,6 @@ export const register = async (req, res) => {
       );
     }
 
-    // Default picture if there will be no uploaded image
-    const usernameInitial = username.charAt(0).toUpperCase();
-    const defaultProfile = `https://ui-avatars.com/api/?name=${usernameInitial}&background=random&color=random&rounded=true&bold=true`;
-
-    let profilePath = defaultProfile;
-    if (req.file && req.file.path) {
-      profilePath = req.file.path;
-    }
-
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
 
@@ -45,7 +36,6 @@ export const register = async (req, res) => {
       email,
       username,
       password: passwordHash,
-      profilePath,
     });
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
