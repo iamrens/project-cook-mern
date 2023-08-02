@@ -4,42 +4,18 @@ import { Formik, FormikHelpers } from "formik";
 import { HiUser, HiEnvelope, HiLockClosed } from "react-icons/hi2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Alerts from "./Alerts";
+import { useDispatch } from "react-redux";
+import { setLogin } from "../states";
+import { FormInputs, Register, Login } from "../utils/interface";
 
-interface Inputs {
-  username?: string;
-  email: string;
-  password: string;
-}
 
-interface UserRegister {
-  username: string;
-  email: string;
-  password: string;
-  createdAt: Date;
-  updatedAt: Date;
-  _id: string;
-}
-
-interface UserLogin {
-  token: string;
-  user: {
-    username: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
-    _id: string;
-  } 
-}
-
-const initialValuesRegister: Inputs = {
+const initialValuesRegister: FormInputs = {
   username: "",
   email: "",
   password: "",
 };
 
-const initialValuesLogin: Inputs = {
+const initialValuesLogin: FormInputs = {
   email: "",
   password: "",
 };
@@ -79,12 +55,14 @@ const dbApi: string = import.meta.env.VITE_DB_API as string;
 
 const Forms = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [pageType, setPageType] = useState<string>("login");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const register = async (values: Inputs, onSubmitProps: FormikHelpers<Inputs>) => {
+  const register = async (values: FormInputs, onSubmitProps: FormikHelpers<FormInputs>) => {
     setErrorMessage(null);
     try {
       const savedUserResponse = await axios.post(`${dbApi}/auth/register`, {
@@ -93,7 +71,7 @@ const Forms = () => {
         password: values.password
       })
 
-      const savedUser: UserRegister = await savedUserResponse.data as UserRegister;
+      const savedUser: Register = await savedUserResponse.data as Register;
       onSubmitProps.resetForm();
 
       console.log(savedUser)
@@ -117,14 +95,19 @@ const Forms = () => {
     }
   };
 
-  const login = async (values: Inputs, onSubmitProps: FormikHelpers<Inputs>) => {
+  const login = async (values: FormInputs, onSubmitProps: FormikHelpers<FormInputs>) => {
     try {
       const response = await axios.post(`${dbApi}/auth/login`, values);
-      const loggedIn: UserLogin = response.data as UserLogin;
+      const loggedIn: Login = response.data as Login;
 
       if (loggedIn) {
         // data saved in redux persist
-        
+        dispatch(
+          setLogin({
+            user: loggedIn.user,
+            token: loggedIn.token,
+          })
+        );
         console.log(loggedIn)
         onSubmitProps.resetForm();
         navigate('/');
@@ -135,7 +118,7 @@ const Forms = () => {
     }
   };
 
-  const handleFormSubmit = async (values: Inputs, onSubmitProps: FormikHelpers<Inputs>) => {
+  const handleFormSubmit = async (values: FormInputs, onSubmitProps: FormikHelpers<FormInputs>) => {
     if (isLogin) await login(values, onSubmitProps);
     if (isRegister) await register(values, onSubmitProps);
   };
