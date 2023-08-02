@@ -28,12 +28,10 @@ export interface Login {
 }
 
 export interface User {
-    user: {
-        username: string;
-        email: string;
-        password: string;
-        createdAt: Date;
-        updatedAt: Date;
-        _id: string;
-    } 
+    username: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+    _id: string;
 }
