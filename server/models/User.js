@@ -19,6 +19,21 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    followers: {
+        type: Map,
+        of: Boolean,
+        default: {}
+    },
+    following: {
+        type: Map,
+        of: Boolean,
+        default: {}
+    },
+    savedRecipes: {
+        type: Map,
+        of: Boolean,
+        default: {}
+    },
 }, { timestamps: true } );
 
 const User = mongoose.model("User", UserSchema);
