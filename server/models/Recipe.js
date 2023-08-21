@@ -31,6 +31,11 @@ const RecipeSchema = mongoose.Schema({
     type: Map,
     of: Boolean,
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+    max: 5
+  },
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,

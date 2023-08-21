@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
+import Comment from "../models/Comment.js";
+import Rating from "../models/Rating.js"
 
 // Create a new recipe
 export const createRecipe = async (req, res) => {
@@ -39,7 +41,7 @@ export const createRecipe = async (req, res) => {
 
         await newRecipe.save();
 
-        const recipe = await Recipe.find().sort({ createdAt: -1 });
+        const recipe = await Recipe.find().sort({ createdAt: -1 }).populate("comments");
         res.status(201).json(recipe);
 
     } catch (err) {
@@ -50,7 +52,7 @@ export const createRecipe = async (req, res) => {
 // Get all recipe
 export const getAllRecipe = async (req, res) => {
     try {
-        const recipes = await Recipe.find().sort({ createdAt: -1 });
+        const recipes = await Recipe.find().sort({ createdAt: -1 }).populate("comments");
         res.status(200).json(recipes);
     } catch (err) {
         res.status(404).json({ message: err.message });
@@ -61,7 +63,7 @@ export const getAllRecipe = async (req, res) => {
 export const getRecipe = async (req, res) => {
     try {
         const { recipeID } = req.params;
-        const recipe = await Recipe.findById(recipeID);
+        const recipe = await Recipe.findById(recipeID).populate("comments");
 
         if (!recipe) {
             throw new Error("Recipe not found.")
@@ -78,7 +80,7 @@ export const getUserRecipes = async (req, res) => {
     try {
         const { userID } = req.params;
 
-        const recipes = await Recipe.find({ userOwner: userID }).sort({ createdAt: -1 });
+        const recipes = await Recipe.find({ userOwner: userID }).sort({ createdAt: -1 }).populate("comments");
         
         res.status(200).json(recipes);
     } catch (err) {
@@ -93,7 +95,7 @@ export const updateRecipe = async (req, res) => {
         const { name, description, ingredients, instructions, cookingTime, userOwner } = req.body;
 
         const user = await User.findById(userOwner);
-        const recipe = await Recipe.findById(recipeID)
+        const recipe = await Recipe.findById(recipeID).populate("comments");
 
         // Validation checks
         if (!user) throw new Error("User not found. Please signin.");
@@ -136,24 +138,17 @@ export const deleteRecipe = async (req, res) => {
         const recipe = await Recipe.findById(recipeID);
         const user = await User.findById(userID);
 
-        console.log(recipe.userOwner.toString(), userID)
-
-        const id1 = recipe.userOwner.toString()
-        const id2 = userID
-
-        if(id1 === id2) {
-            console.log("they are the same")
-        } else {
-            console.log("they are different")
-        }
-
         // Validation checks
         if (!user) throw new Error("User not found. Please signin.");
         if (!recipe) throw new Error("Recipe not found.");
         if (recipe.userOwner.toString() !== userID) throw new Error("User not authorized to delete this recipe.");
 
+        // Delete the associated comments
+        await Comment.deleteMany({ recipePath: recipeID })
+
+        // Delete the recipe
         await Recipe.findByIdAndDelete(recipeID);
-        const updatedRecipes = await Recipe.find().sort({ createdAt: -1 });
+        const updatedRecipes = await Recipe.find().sort({ createdAt: -1 }).populate("comments");
 
         res.status(200).json(updatedRecipes);
     } catch (err) {
@@ -190,7 +185,7 @@ export const likedRecipe = async (req, res) => {
             recipeID,
             { likes: recipe.likes },
             { new: true }
-        )
+        ).populate("comments");
 
         res.status(200).json(updatedRecipe);
 
@@ -246,9 +241,54 @@ export const getAllSaved = async (req, res) => {
         // Get an array of recipeIDs from the user's savedRecipes Map
         const savedRecipeIDs = Array.from(user.savedRecipes.keys());
 
-        const savedRecipes = await Recipe.find({ _id: { $in: savedRecipeIDs } });
+        const savedRecipes = await Recipe.find({ _id: { $in: savedRecipeIDs } }).populate("comments");
 
         res.status(200).json(savedRecipes);
+
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+};
+
+// Post or update existing ratings
+export const postRating = async (req, res) => {
+    try {
+        const { recipeID } = req.params;
+        const { rating, userID } = req.body
+
+        const user = await User.findById(userID);
+        const recipe = await Recipe.findById(recipeID).populate("comments");
+
+        // Check if the user exists
+        if (!user) throw new Error("User not found. Please signin.");
+        if (!recipe) throw new Error("Recipe not found.");
+        if (recipe.userOwner.toString() === userID) throw new Error("User cannot rate his own recipe.");
+
+        // Check if the user already rates the recipe
+        const ratingExist = await Rating.findOne({ recipeID: recipeID, userOwner: userID});
+
+        if (ratingExist) {
+            // Update the existing rating
+            ratingExist.rating = rating;
+            await ratingExist.save();
+        } else {
+            // Post the new rating
+            const newRating = new Rating({
+                recipeID,
+                userOwner: userID,
+                rating,
+            })
+            await newRating.save();
+        }
+
+        const allRating = await Rating.find({ recipeID });
+        const totalRating = allRating.reduce((sum, ratingObj) => sum + ratingObj.rating, 0);
+        const averageRating = totalRating / allRating.length;
+
+        recipe.averageRating = averageRating;
+        await recipe.save();
+
+        res.status(200).json(recipe);
 
     } catch (err) {
         res.status(404).json({ message: err.message });

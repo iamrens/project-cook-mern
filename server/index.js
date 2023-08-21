@@ -11,6 +11,8 @@ import bodyParser from "body-parser";
 
 import authRoutes from './routes/auth.js'
 import recipeRoutes from './routes/recipe.js'
+import userRoutes from './routes/user.js'
+import commentRoutes from './routes/comment.js'
 import { createRecipe, updateRecipe } from './controller/recipe.js'
 import { verifyToken } from './middleware/token.js'
 
@@ -50,9 +52,9 @@ app.patch("/recipes/:recipeID", verifyToken, uploadRecipe.single("image"), updat
 
 // GENERAL ROUTES
 app.use("/auth", authRoutes);
-// app.use("/users", userRoutes);
+app.use("/users", userRoutes);
 app.use("/recipes", recipeRoutes);
-
+app.use("/recipes", commentRoutes);
 
 
 app.get("/", (req, res) => {
