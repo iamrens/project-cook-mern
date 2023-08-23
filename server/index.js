@@ -15,6 +15,9 @@ import userRoutes from './routes/user.js'
 import commentRoutes from './routes/comment.js'
 import { createRecipe, updateRecipe } from './controller/recipe.js'
 import { verifyToken } from './middleware/token.js'
+import User from './models/User.js';
+import Recipe from './models/Recipe.js';
+import { users, recipes } from './data/index.js';
 
 // CONFIGS
 const app = express();
@@ -73,6 +76,10 @@ mongoose
   .then(() => {
     console.log('MongoDB connected')
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+
+    /* ADD DATA ONE TIME */
+    // User.insertMany(users);
+    // Recipe.insertMany(recipes);
 
   })
   .catch((error) => console.log(`${error} did not connect`));
