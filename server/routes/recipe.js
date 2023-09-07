@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyToken } from "../middleware/token.js"
-import { getAllRecipe, createRecipe, getRecipe, getUserRecipes, savedRecipe, getAllSaved, likedRecipe, deleteRecipe, postRating } from "../controller/recipe.js";
+import { getAllRecipe, createRecipe, getRecipe, getUserRecipes, savedRecipe, getAllSaved, likedRecipe, deleteRecipe, postRating, searchRecipes } from "../controller/recipe.js";
 
 const router = express.Router();
 
@@ -11,7 +11,8 @@ const router = express.Router();
 router.route("/:recipeID").get(getRecipe);
 router.route("/").get(getAllRecipe);
 router.route("/all/:userID").get(getUserRecipes);
-router.route("/saved/:userID").get(getAllSaved)
+router.route("/saved/:userID").get(getAllSaved);
+router.route("/search/:searchTerm").get(searchRecipes);
 
 // UPDATE
 router.route("/saved/:recipeID").patch(verifyToken, savedRecipe);

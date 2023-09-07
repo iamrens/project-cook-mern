@@ -1,48 +1,24 @@
-import { sampleData } from "../assets/sampledata"
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { RootState } from "../main";
 
 const Feed = () => {
+  const dbApi: string = import.meta.env.VITE_DB_API as string;
+  const token = useSelector((state: RootState) => state.token);
+
+  // const getAllRecipe = async () => {
+  //   try {
+  //     const response = await axios.get
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+
 
   return (
     <div className="mt-10 bg-red-500 grid grid-cols-4 gap-4">
-      
-      {sampleData.map(recipe => (
-        <div
-          key={recipe.id}
-          className="max-w-[280px] h-[350px] bg-purple-500"
-        >
-          <div>
-            <img src={recipe.image} alt={recipe.title} className="" />
-          </div>
-
-          <div>
-            Hello
-          </div>
-
-        </div>
-      ))}
-
-
+      Hello
     </div>
-    // <div className="mt-10 flex gap-5 flex-row flex-wrap justify-center bg-red-500">
-      
-    //   {sampleData.map(recipe => (
-    //     <div
-    //       key={recipe.id}
-    //       className="flex flex-col flex-auto max-w-[280px] h-[400px] bg-purple-500"
-    //     >
-    //       <div>
-    //         <img src={recipe.image} alt={recipe.title} className="" />
-    //       </div>
-
-    //       <div>
-    //         Hello
-    //       </div>
-
-    //     </div>
-    //   ))}
-
-
-    // </div>
   )
 }
 

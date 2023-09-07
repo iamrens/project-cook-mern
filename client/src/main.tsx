@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from 'next-themes'
-import authReducer from './states/index.tsx'
+import recipeReducer from './states/index.tsx'
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import {
@@ -20,7 +20,7 @@ import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
 
 const persistConfig = { key: "root", storage, version: 1 };
-const persistedReducer = persistReducer(persistConfig, authReducer);
+const persistedReducer = persistReducer(persistConfig, recipeReducer);
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -30,6 +30,9 @@ const store = configureStore({
       },
     }),
 });
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

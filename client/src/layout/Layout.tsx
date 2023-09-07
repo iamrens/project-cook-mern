@@ -4,11 +4,11 @@ import Footer from "../components/Footer";
 
 const Layout = () => {
   return (
-    <div className="bg-light dark:bg-dark px-[6%] transition duration-500">
+    <div className="bg-light dark:bg-dark transition duration-500 min-h-[100vh]">
       
       <Navbar />
 
-      <main className="">
+      <main>
         <Outlet />
       </main>
 

@@ -16,8 +16,8 @@ const initialState: InitialStates = {
   token: null,
 };
 
-export const authSlice = createSlice({
-  name: "auth",
+export const recipeSlice = createSlice({
+  name: "recipe",
   initialState,
   reducers: {
     setLogin: (state, action: PayloadAction<LoginPayload>) => {
@@ -31,6 +31,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setLogin, setLogout } =
-  authSlice.actions;
-export default authSlice.reducer;
+export const { setLogin, setLogout } = recipeSlice.actions;
+export default recipeSlice.reducer;

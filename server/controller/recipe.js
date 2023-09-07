@@ -294,3 +294,26 @@ export const postRating = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 };
+
+// Search recipes
+export const searchRecipes = async (req, res) => {
+    try {
+        const { searchTerm } = req.params;
+
+        if(!searchTerm) throw new Error("Search field is required")
+
+        const regex = new RegExp(searchTerm, "i"); // for case-insensitive search
+
+        const recipes = await Recipe.find({
+            $or: [
+                { name: { $regex: regex } }, // Search by recipe name
+                { description: { $regex: regex } }, // Search by recipe description
+            ]
+        }).populate("comments")
+
+        res.status(200).json(recipes);
+
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+};

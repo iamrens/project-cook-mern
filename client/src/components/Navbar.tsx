@@ -7,7 +7,7 @@ const Navbar = () => {
     const navigate = useNavigate();
 
   return (
-    <div className="py-4 flex items-center justify-between">
+    <div className="py-3 flex items-center justify-between bg-gray-200 px-[6%] z-50 sticky">
         
         <h1 
             onClick={() => navigate("/")}
